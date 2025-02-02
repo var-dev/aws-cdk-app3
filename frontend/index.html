@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vite + Lit + TS</title>
+    <link rel="stylesheet" href="./src/index.css" />
+    <script type="module" src="/src/el-list-bucket.ts"></script>
+    <script type="module" src="/src/el-login-status.ts"></script>
+  </head>
+  <body>
+    <div class="container">
+      <header class="header">
+        <div class="title">
+          <h1>Sample App</h1>
+          <div>Prints out the asset bucket content.</div>
+        </div>
+        <div class="login-info">
+          <login-status></login-status>
+        </div>
+      </header>
+      <main class="content">
+        <list-bucket></list-bucket>
+      </main>
+    </div>
+  </body>
+</html>

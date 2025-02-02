@@ -1,0 +1,17 @@
+{
+  "name": "utils",
+  "type": "commonjs",
+  "scripts": {
+    "deployDist": "node -r 'ts-node/register' src/deployDist.ts"
+  },
+  "devDependencies": {
+    "@aws-sdk/client-s3": "^3.731.1",
+    "@types/lodash": "^4.17.14",
+    "@types/mime-types": "^2.1.4",
+    "@types/node": "^22.10.7",
+    "lodash": "^4.17.21",
+    "mime-types": "^2.1.35",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.3"
+  }
+}

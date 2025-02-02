@@ -1,0 +1,12 @@
+!sample*
+stackOutput*.json
+cloudfrontKeys.json
+oktaProps.json
+node_modules
+cdk.out
+*.pem
+temp
+notes.txt
+toDo.txt
+todo.txt
+

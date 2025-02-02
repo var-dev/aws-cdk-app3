@@ -1,0 +1,16 @@
+{
+  "YourAppStack": {
+    "distributionUrl": "https://XXXXXXXXX.cloudfront.net",
+    "appDomain": "XXXXXXXXX.cloudfront.net",
+    "logoutLambdaUrl": "https://randomLambdaUrl1.lambda-url.us-east-1.on.aws/",
+    "oktaLoginLambdaUrl": "https://randomLambdaUrl2.lambda-url.us-east-1.on.aws/",
+    "awsCredentialsLambdaUrl": "https://randomLambdaUrl3.lambda-url.us-east-1.on.aws/",
+    "oktaCallbackLambdaUrl": "https://randomLambdaUrl4.lambda-url.us-east-1.on.aws/",
+    "oktaFederatedRoleArn": "arn:aws:iam::1234567890:role/generatedArn1",
+    "oktaAuthorizeLambdaUrl": "https://randomLambdaUrl5.lambda-url.us-east-1.on.aws/",
+    "assetBucketName": "generatedS3bucketName1",
+    "appRegion": "us-east-X",
+    "logBucketName": "generatedS3bucketName2",
+    "publicKeyId": "ZZZZZZZZZZ"
+  }
+}
