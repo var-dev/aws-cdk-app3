@@ -3,8 +3,9 @@ import { FunctionUrl, FunctionUrlAuthType, Runtime } from 'aws-cdk-lib/aws-lambd
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs'
 import { Construct } from "constructs"
 import path from 'path'
-import fs from 'node:fs'
+import { readFileSync } from 'node:fs'
 import { RetentionDays } from 'aws-cdk-lib/aws-logs';
+import { flattenObject } from '../../../../utils/src/flattenObject';
 
 
 export class AwsCredentialsLambda extends Construct{
@@ -15,19 +16,20 @@ export class AwsCredentialsLambda extends Construct{
   constructor(scope: Construct, id: string){
     super(scope, id)
 
-    const { YourNameAppStack:
-      { 
-        distributionUrl, 
-        publicKeyId,
-        oktaFederatedRoleArn,
-        appRegion
-      }} = JSON.parse(fs.readFileSync(path.join(__dirname, '..', '..', '..', './stackOutputs.json'), 'utf-8'))
+    const stackOutputs = JSON.parse(readFileSync(path.join(__dirname, '..', '..', '..', './stackOutputs.json'), 'utf-8'))
+    const { 
+      appDomain,
+      distributionUrl, 
+      publicKeyId,
+      oktaFederatedRoleArn,
+      appRegion,
+    } = flattenObject(stackOutputs)
+        
 
     const { 
-          appDomain,
           oktaDomain, 
           oktaClientId
-        } = JSON.parse(fs.readFileSync(path.join(__dirname, '..', '..', '..', './oktaProps.json'), 'utf-8'))
+        } = JSON.parse(readFileSync(path.join(__dirname, '..', '..', '..', './oktaProps.json'), 'utf-8'))
     
 
     this.awsCredentialsLambda = new NodejsFunction(this, `Self`, {

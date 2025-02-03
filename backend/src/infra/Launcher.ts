@@ -7,7 +7,7 @@ export interface CustomStackProps extends StackProps {
 
 const app = new App();
 new YourNameAppStack(app, 'YourNameAppStack',{
-  constructIdPrefix: 'qwerty',
+  constructIdPrefix: 'qwe123',
   env: {
     region: process.env.CDK_DEFAULT_REGION || 'us-east-1',
     account: process.env.CDK_DEFAULT_ACCOUNT,

@@ -1,10 +1,12 @@
 import { CfnOutput, Size } from 'aws-cdk-lib';
-import { FunctionUrl, FunctionUrlAuthType, Runtime } from 'aws-cdk-lib/aws-lambda';
-import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
+import { FunctionUrl, FunctionUrlAuthType, Runtime } from 'aws-cdk-lib/aws-lambda'
+import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs'
 import { Construct } from "constructs"
 import path from 'path';
-import fs from 'node:fs'
-import { RetentionDays } from 'aws-cdk-lib/aws-logs';
+import { readFileSync } from 'node:fs'
+import { RetentionDays } from 'aws-cdk-lib/aws-logs'
+
+import {flattenObject} from '../../../../utils/src/flattenObject'
 
 
 export class OktaLoginLambda extends Construct{
@@ -15,11 +17,15 @@ export class OktaLoginLambda extends Construct{
   constructor(scope: Construct, id: string){
     super(scope, id)
 
+    const stackOutputs = JSON.parse(readFileSync(path.join(__dirname, '..', '..', '..', './stackOutputs.json'), 'utf-8'))
     const { 
       appDomain,
+    } = flattenObject(stackOutputs)
+
+    const { 
       oktaDomain, 
       oktaClientId
-    } = JSON.parse(fs.readFileSync(path.join(__dirname, '..', '..', '..', './oktaProps.json'), 'utf-8'))
+    } = JSON.parse(readFileSync(path.join(__dirname, '..', '..', '..', './oktaProps.json'), 'utf-8'))
 
 
     this.oktaLoginLambda = new NodejsFunction(this, `Self`, {

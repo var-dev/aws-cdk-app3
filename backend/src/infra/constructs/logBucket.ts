@@ -33,7 +33,6 @@ export class LogBucket extends Construct{
 
     new CfnOutput(this, `Name`, {
       key: 'logBucketName',
-      exportName: 'LogBucketName',
       value: this.logBucket.bucketName,
     })
   }

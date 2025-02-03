@@ -1,5 +1,5 @@
 {
-  "YourAppStack": {
+  "YourNameAppStack": {
     "distributionUrl": "https://XXXXXXXXX.cloudfront.net",
     "appDomain": "XXXXXXXXX.cloudfront.net",
     "logoutLambdaUrl": "https://randomLambdaUrl1.lambda-url.us-east-1.on.aws/",

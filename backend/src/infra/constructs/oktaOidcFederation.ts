@@ -14,13 +14,20 @@ export class OktaOidcFederation extends Construct{
 
     const { 
       oktaDomain, 
-      oktaClientId
+      oktaClientId,
+      awsIdpForOkta,
     } = JSON.parse(fs.readFileSync(path.join(__dirname, '..', '..', '..', './oktaProps.json'), 'utf-8'))
 
-    const oktaProvider = new OpenIdConnectProvider(this, 'OidcProvider', {
-      url: `https://${oktaDomain}`,
-      clientIds: [oktaClientId],
-    })
+    // const oktaProvider = new OpenIdConnectProvider(this, 'OidcProvider', {
+    //   url: `https://${oktaDomain}/custom`,
+    //   clientIds: [oktaClientId],
+    // })
+
+
+    // This assumes that AWS Okta IDP already exists. Check IAM->Identity providers in AWS console.
+    const oktaProvider = OpenIdConnectProvider.fromOpenIdConnectProviderArn(this, 'OidcProvider', awsIdpForOkta)
+      // Attention! clientIds can't be added via CDK in this case
+      // Add your Okta clientId in IAM->Identity providers->your-idp.okta.com->Audiences manually
 
     const federatedRole = new Role(this, 'FederatedRole', {
       assumedBy: new WebIdentityPrincipal(oktaProvider.openIdConnectProviderArn, {
