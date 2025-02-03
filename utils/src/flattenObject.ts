@@ -27,6 +27,6 @@ const nestedObject = {
 };
 
 const flattenedObject = flattenObject(nestedObject);
-console.log(flattenedObject);
+// console.log(flattenedObject);
 
 // result   {a: 1, c: 2, e: 3, f: 4, g: 5}
