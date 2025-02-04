@@ -18,7 +18,7 @@
     "@aws-sdk/client-sts": "^3.730.0",
     "@types/jsrsasign": "^10.5.15",
     "@types/lodash": "^4.17.14",
-    "@types/node": "^22.10.7",
+    "@types/node": "^22.13.1",
     "aws-sdk": "^2.1692.0",
     "jsrsasign": "^11.1.0",
     "lodash": "^4.17.21",

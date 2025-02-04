@@ -5,6 +5,7 @@ import pick from 'lodash/pick'
 import mime from 'mime-types'
 
 import { S3Client, PutObjectCommand, PutObjectCommandOutput } from "@aws-sdk/client-s3";
+import { flattenObject } from "./flattenObject";
 
 type FileNameObject = 
   {
@@ -16,8 +17,9 @@ type FileNameObject =
 const srcFolder = path.resolve(__dirname, '..', '..', 'frontend', 'dist')
 const jsonPath = path.resolve(__dirname, '..', '..', 'backend', 'stackOutputs.json')
 const stackOutputs = JSON.parse(readFileSync(jsonPath, 'utf-8'));
+const stackOutputsFlat = flattenObject(stackOutputs)
 
-const {assetBucketName, appRegion} = pick({...stackOutputs.YourNameAppStack}, 'assetBucketName', 'appRegion')
+const {assetBucketName, appRegion} = pick(stackOutputsFlat, 'assetBucketName', 'appRegion')
 const s3keyPrefix = 'web/static'  // no prepending or trailing slashes
 
 console.log(assetBucketName)

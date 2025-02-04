@@ -1,6 +1,8 @@
 import pick from 'lodash/pick'
-import path from 'path';
-import fs from 'fs';
+import path from 'path'
+import { readFileSync } from 'node:fs'
+import { flattenObject } from '../../utils/src/flattenObject'
+
  
 export default function stackOutputs() {
     const 
@@ -8,7 +10,7 @@ export default function stackOutputs() {
       virtualModuleId = `virtual:${name}`,
       processData = 
         (data:any) => 
-          pick({...data.YourNameAppStack}, 'oktaFederatedRoleArn', 'appRegion', 'assetBucketName')
+          pick(data, 'oktaFederatedRoleArn', 'appRegion', 'assetBucketName')
 
  
   return {
@@ -20,9 +22,10 @@ export default function stackOutputs() {
     },
     load(id: string) {
       if (id === '\0' + virtualModuleId) {
-        const jsonPath = path.resolve(__dirname, '..', '..', 'backend', 'stackOutputs.json')
-        const jsonData = JSON.parse(fs.readFileSync(jsonPath, 'utf-8'));
-        const processedData = processData(jsonData);
+        const stackOutputsPath = path.resolve(__dirname, '..', '..', 'backend', 'stackOutputs.json')
+        const stackOutputs = JSON.parse(readFileSync(stackOutputsPath, 'utf-8'))
+        const stackOutputsFlat = flattenObject(stackOutputs)
+        const processedData = processData(stackOutputsFlat);
         return `export default ${JSON.stringify(processedData)}`;
       }
     }
