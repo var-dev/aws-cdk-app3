@@ -9,6 +9,8 @@ import {awsCookieParser} from '../../utils/awsCookieParser.js'
 import {LambdaFunctionURLEvent, LambdaFunctionURLResult, Context} from 'aws-lambda'
 import createError from 'http-errors'
 import { prepareJwks } from './prepareJwks.js'
+import { readFileSync } from 'node:fs'
+import path from 'node:path'
 
 
 const appDomain = process.env.APP_DOMAIN ?? 'undefinedAppDomain'
@@ -29,7 +31,8 @@ const cookieOpts: SerializeOptions = {
 
 // LambdaFunctionURLEvent LambdaFunctionURLResult
 // todo validator cookies, body.state, body.code
-const postHandler = async (event:LambdaFunctionURLEvent, context: Context): Promise<LambdaFunctionURLResult> => {
+const getHandler = async (event:LambdaFunctionURLEvent, context: Context): Promise<LambdaFunctionURLResult> => {
+    const iifeFetchJwks = readFileSync('iifeFetchJwks.js')
     const cookies = awsCookieParser(event)
     console.log(`\ncookies: ${JSON.stringify(cookies, undefined, 2)}\n`)
     
@@ -75,17 +78,18 @@ const postHandler = async (event:LambdaFunctionURLEvent, context: Context): Prom
         throw createError.BadRequest(`${err.statusText} NfD2N1KaJD`);
       })
 
-    const jwks = await prepareJwks(cookies.okta_jwks ?? '', oktaDomain)
-    console.log(`Await JWKS base64url: ${jwks}`)
-
 
     return { 
-      statusCode: 302,
+      statusCode: 200,
       body: `
         <!DOCTYPE html>
         <html>
           <head>
-            <meta http-equiv="Refresh" content="0; /okta/authorize"/>
+            
+            <script>
+              var oktaDomain = '${oktaDomain}';
+              ${iifeFetchJwks}
+            </script>
           </head>
           <body>
             <h1>Redirecting2</h1>
@@ -98,7 +102,6 @@ const postHandler = async (event:LambdaFunctionURLEvent, context: Context): Prom
       cookies: [
         serialize('access_token', (await responseAutzCodeFlowPromise).access_token, {...cookieOpts, maxAge: (await responseAutzCodeFlowPromise).expires_in}),
         serialize('id_token', (await responseAutzCodeFlowPromise).id_token, {...cookieOpts, maxAge: (await responseAutzCodeFlowPromise).expires_in}),
-        serialize('okta_jwks', `${jwks}`, {...cookieOpts, sameSite:'none'}),  // base64 encoded
         serialize('expires_ms', `${Date.now() + Number((await responseAutzCodeFlowPromise).expires_in ?? 3600) * 1000}`, {...cookieOpts, maxAge: (await responseAutzCodeFlowPromise).expires_in, httpOnly: false}),  //Date.now() + token lifetime
       ]
     }
@@ -109,4 +112,4 @@ export const handler = middy()
   .use(httpErrorHandler())
   .use(httpHeaderNormalizer())
   .use(httpUrlEncodeBodyParser())  // {disableContentTypeError: true}
-  .handler(postHandler)
+  .handler(getHandler)
