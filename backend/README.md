@@ -1,33 +1,12 @@
 # Backend Overview.
-Apart from obvious, minimization of repetition of the same code over and over again, when a web page needs to be hosted, user authenticated, AWS resources interfaced with, I intend to keep this "chapter" to document some design pattern related to `backend` serverless development using AWS CDK.  
+Basically `backend` is just a reminder of what to do when a web page needs to be hosted, user authenticated, AWS resources interfaced with, etc. Apart from obvious, minimization of repetition of the same code, the intention is to keep this "chapter" to document some design pattern related to serverless development using AWS CDK.  
 
-## Architecture (AI generated)
-The `backend` chapter of this project is designed using a microservices architecture to ensure scalability and maintainability. Each service is responsible for a specific functionality and communicates with other services via RESTful APIs.
-
-## Technologies Used (AI generated)
-- **Programming Language**: Typescript
-- **Framework**: AWS CDK
-- **Database**: N/A
-- **Authentication**: Okta
-- **Containerization**: AWS Lambda
-- **Orchestration**: AWS CDK
 
 ## Key Functionalities (AI generated)
 - **Certificate Generation**: Handles the creation and signing of digital certificates.
 - **User Management**: Manages user registration, authentication, and authorization.
 - **API Gateway**: Acts as a single entry point for all client requests and routes them to the appropriate services.
 - **Logging and Monitoring**: Implements logging and monitoring to track the performance and health of the services.
-
-## Setup Instructions (AI generated)
-1. Clone the repository.
-2. Navigate to the `backend` directory.
-3. Build the Docker images using `npm run build`.
-4. Follow the URL *AppStack.distributionUrl
-
-## Contribution Guidelines
-- Fork the repository.
-- Create a new branch for your feature or bugfix.
-- Submit a pull request with a detailed description of your changes.
 
 
 ### Here's `backend` structure with a brief description of some nested folders:
@@ -46,14 +25,16 @@ temp/                     # Temporary files
 
 ## Authentication Sequence.  
 
-1.  `/okta/login` - When GET request comes in, it triggers CloudFront behavior that launches `oktaLoginLambda`. This function constructs Okta hosted OIDC login URL and then sends it back in `meta http-equiv="Refresh"` frame with code **302 Redirect**. Once the browser receives this response it follows the custom Okta Login link as if the end-user clicked on it.
+1.  `/okta/login` - When GET request comes in, it triggers CloudFront behavior that launches `oktaLoginLambda`. This function constructs Okta hosted OIDC login URL and then sends it back in `<meta http-equiv="Refresh" content="0; ${authorizeUrl}"/>` frame with code **302 Redirect**. Once the browser receives this lambda response it'll follow the custom Okta Login link (`${authorizeUrl}`, the #2 below) as if the end-user clicked on it.
 
-2.  `okta.com/oauth2/v1/authorize?client_id` - Okta authorization returns its hosted login prompt. After successful login it calls the predefined (in your app auth profile) callback URL.
+2.  `okta.com/oauth2/v1/authorize?client_id` - Okta authorization returns its hosted login prompt. After successful login it calls the predefined (in your Okta app auth profile) callback URL, which is the next #3.
 
 3.  `/okta/callback` - This behavior is triggered by GET request. In the response body (from the above step) Okta has sent us authorization `code` that this `oktaCallbackLambda` will attempt to exchange for Okta `id_token` and `access_token`.
     - It sends POST request to `okta.com/oauth2/v1/token`.
     - Redirects to the next in chain `/okta/authorize` while storing `id_token` and `access_token` values in **HttpOnly** cookies.
     - In parallel with the above POST, the lambda fetches your Okta app JWKS and stores it as `okta_jwks` cookie to be reused later.
+    - The above POST has been reworked and now runs in the browser. See below `oktaCallbackLambda` for details.
+      - Regardless, even from the browser, it should redirect to step #4.
 
 4.  `/okta/authorize` - Triggers `oktaAuthorizeLambda` which does the following:
     - Verifies id and access tokens locally using obtained in the previous step JWKS.
@@ -97,15 +78,15 @@ temp/                     # Temporary files
 
 ## oktaCallbackLambda.
 
-  This AWS Lambda executes some code on both server and client side in the browser. To achieve this the following steps were taken:
+  This AWS Lambda executes some code but it also sends some as part of the returned web-page to be run in the browser. To achieve this the following steps were taken:
 - `iifeFetchJwks.js` script implements the client (browser) side functionality.
 - It's a regular `.js` file that doesn't need to be built. Though compilation/build is fairly foreseeable for complex scenarios.
 - It is copied into the lambda bundle by `OktaCallbackLambda` that has `afterBundling` command hook.
 - `afterBundling` is executed after the bundling process is complete but before the lambda is zipped up.
-- From the lambda perspective the `.js` code is on local filesystem and can now be read by the handler, i.e. using `readFileSync`, see the handler code.
+- From the lambda perspective the `.js` code is just a text file on lambda filesystem and can now be read by the handler, i.e. using `readFileSync`, see the handler code.
 - The `iifeFetchJwks.js` content is included verbatim between the `html` \<script\>\<\/script\> tags.
 - Variable `var oktaDomain = '${oktaDomain}';` in the lambda **HTML** section turns into a regular assignment in the browser: `var oktaDomain = 'dev-123456789.okta.com';`.
-- It's important to properly "stringify" these types of assignments. Must use `JSON.stringify` and `JSON.parse` for arrays and objects.
+- It's important to properly "stringify" this type of assignments. Must use `JSON.stringify` and `JSON.parse` for arrays and objects.
 - It's worth mentioning that some `client-side` tasks can be asynchronous and therefore may not finish before the web page fully renders and redirects.
 - In order to adapt to this scenario the redirect is implemented inside the `then` clause of `iifeFetchJwks`: 
 ```
@@ -116,3 +97,25 @@ temp/                     # Temporary files
 ```
 - It's possible to do the OIDC authorization `fetch` in the browser too. It will probably save some lambda run-time \$. But I want to keep it simple here so it is what it is.
 - Though if implemented, and I repeat the above mentioned notion here, all **async** tasks need to be chained up in a sequence of `.then()`. Even second fetch should look like `.then(res=>fetch(url))`. This is syntactically correct as the fetch API returns Promise.
+
+## CORS.
+
+It may not be such an obvious thing but when accessing AWS S3 whom the web browser via the **saws-sdk/client-s3** library the browser will still subject requests to CORS rules:
+  - Preflight, OPTIONS with strict-origin-when-cross-origin header.
+  - Response: access-control-allow-origin: * or whatever your CloudFront returns.
+  - If you forget there will be very obvious message in the browser console.
+  - Here's how to fix it in the CDK construct/stack:
+  ```
+      const assetBucket = new Bucket(this, `${props?.constructIdPrefix}AssetBucket`, {
+...
+      cors:[
+        {
+          allowedMethods: [HttpMethods.GET,], // Adjust as needed
+          allowedOrigins: ['*'],    // Adjust to your specific origins
+          allowedHeaders: ['*'],    // Adjust as needed
+        },
+      ]
+    })
+  ``` 
+    - Probably some other AWS resources will require setting CORS too.
+    

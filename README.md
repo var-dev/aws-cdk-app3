@@ -12,7 +12,8 @@
 - Generate AWS Cloudfront RSA keys. CF frontend uses signed cookie to authorize access. More in the `backend` folder. For now use the command `npm run genCfKeys` to complete this task.
 - In `stacks/mainAppStack.ts` change the stack class name. May want to use VS Code find/replace and search for `YourNameAppStack`. VS Code F2 hot-key will work for that even better.
 - Same, modify `YourNameAppStack` and constructIdPrefix value `qwe123` in  `Launcher.ts`. 
-- Create a file in `frontend/dist`. I.e.: `touch ../frontend/dist/1.txt`. This is necessary to avoid an error when building stack for the first time.
+- Create a file in `frontend/dist`. I.e.: `mkdir touch ../frontend/dist && touch ../frontend/dist/1.txt`. This is necessary to avoid an error when building stack for the first time.
+- If you've never worked with AWS CDK you should probably start with `npm run cdk bootstrap`. Maybe with `-- --profile="your-aws-non-default-profile"`. Make sure your AWS account is configured and **cli** is functional.  
 - Do `npm run deploy`
 - Go to your Okta account and update the callback URL `https://your-cf-domain.cloudfront.net/okta/callback` using the outputs from the CDK deployment task.
 #### Then go to the `frontend` folder.
@@ -41,6 +42,7 @@
 The below tasks can't be done by AWS CDK especially if IDP URL has already been added. Manually creating it and adding Audiences is the simplest path forward.
 #### Setup your Okta IDP. Done once per IDP URL.
 - In AWS console go to IAM->Identity providers.
+- Configure provider. Select `OpenID Connect`, in the **Provider URL** enter okta domain `dev-YYYYYYY.okta.com`, **Audience** is your Okta `Client ID`.
 - Only one URL allowed per IDP. I.e.: your-idp.okta.com.
 - Skip if the Okta IDP URL you plan to use is already there.
 - Copy ARN and add it to `oktaProps.json`
