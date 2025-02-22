@@ -8,10 +8,7 @@ import {awsCookieParser} from '../../utils/awsCookieParser.js'
 
 import {LambdaFunctionURLEvent, LambdaFunctionURLResult, Context} from 'aws-lambda'
 import createError from 'http-errors'
-import { prepareJwks } from './prepareJwks.js'
 import { readFileSync } from 'node:fs'
-import path from 'node:path'
-
 
 const appDomain = process.env.APP_DOMAIN ?? 'undefinedAppDomain'
 const oktaDomain = process.env.OKTA_DOMAIN ?? 'undefinedOktaDomain'
@@ -88,6 +85,7 @@ const getHandler = async (event:LambdaFunctionURLEvent, context: Context): Promi
             
             <script>
               var oktaDomain = '${oktaDomain}';
+              var appDomain = '${appDomain}';
               ${iifeFetchJwks}
             </script>
           </head>

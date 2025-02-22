@@ -3,7 +3,7 @@ import httpErrorHandler from '@middy/http-error-handler'
 import {SerializeOptions, serialize} from 'cookie'
 import { createHash, randomBytes } from 'node:crypto'
 import createError from 'http-errors'
-import { LambdaFunctionURLResult } from 'aws-lambda'
+import { Handler, LambdaFunctionURLResult } from 'aws-lambda'
 
 
 const appDomain = process.env.APP_DOMAIN ?? 'undefinedAppDomain'
@@ -63,7 +63,7 @@ const getHandler = async (): Promise<LambdaFunctionURLResult> => {
     },
     cookies: [
       serialize('pkce_verifier', pkceVerifier, {...cookieOpts, path: '/okta/callback'}),
-      serialize('pkce_challange', pkceChallenge, {...cookieOpts, path: '/okta/login'}),
+      serialize('pkce_challenge', pkceChallenge, {...cookieOpts, path: '/okta/login'}),
       serialize('okta_domain', oktaDomain, cookieOpts),
       serialize('okta_client_id', oktaClientId, cookieOpts),
       serialize('okta_redirect_uri', oktaRedirectUri, cookieOpts),
@@ -73,7 +73,7 @@ const getHandler = async (): Promise<LambdaFunctionURLResult> => {
   }
 }
 
-export const handler = middy()
+export const handler: Handler = middy()
   .use(httpErrorHandler())
   .handler(getHandler)
 
@@ -82,7 +82,7 @@ export const handler = middy()
   // HTTP/1.1 200 OK
   // Content-Type: application/json
   // Set-Cookie: pkce_verifier=example_verifier; Path=/; HttpOnly
-  // Set-Cookie: pkce_challange=example_challenge; Path=/; HttpOnly
+  // Set-Cookie: pkce_challenge=example_challenge; Path=/; HttpOnly
   // Set-Cookie: okta_domain=example_domain; Path=/; HttpOnly
   // Set-Cookie: okta_client_id=example_client_id; Path=/; HttpOnly
   // Set-Cookie: okta_redirect_uri=example_redirect_uri; Path=/; HttpOnly
@@ -99,7 +99,7 @@ export const handler = middy()
   //   },
   //   "cookies": [
   //     "pkce_verifier",
-  //     "pkce_challange",
+  //     "pkce_challenge",
   //     "okta_domain",
   //     "okta_client_id",
   //     "okta_redirect_uri",

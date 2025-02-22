@@ -71,7 +71,7 @@ const getHandler = async (event: LambdaFunctionURLEvent): Promise<LambdaFunction
       serialize('okta_domain', '', cookieOpts),
       serialize('okta_redirect_uri', '', cookieOpts),
       serialize('okta_state', '', cookieOpts),
-      serialize('pkce_challange', '', cookieOpts),
+      serialize('pkce_challenge', '', cookieOpts),
       serialize('pkce_verifier', '', cookieOpts),
     ]
   }

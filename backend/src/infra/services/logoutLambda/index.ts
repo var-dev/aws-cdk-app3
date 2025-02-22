@@ -1,7 +1,7 @@
 import middy from '@middy/core'
 import httpErrorHandler from '@middy/http-error-handler'
 import createError from 'http-errors'
-import { LambdaFunctionURLEvent, LambdaFunctionURLResult } from 'aws-lambda'
+import { LambdaFunctionURLEvent, LambdaFunctionURLHandler, LambdaFunctionURLResult } from 'aws-lambda'
 import { awsCookieParser } from '../../utils/awsCookieParser'
 import { serialize, SerializeOptions } from 'cookie'
 
@@ -46,7 +46,7 @@ const getHandler = async (event: LambdaFunctionURLEvent): Promise<LambdaFunction
 }
 
 
-export const handler = middy()
+export const handler: LambdaFunctionURLHandler = middy()
   .use(httpErrorHandler())
   .handler(getHandler)
 
@@ -55,7 +55,7 @@ export const handler = middy()
   // HTTP/1.1 200 OK
   // Content-Type: application/json
   // Set-Cookie: pkce_verifier=example_verifier; Path=/; HttpOnly
-  // Set-Cookie: pkce_challange=example_challenge; Path=/; HttpOnly
+  // Set-Cookie: pkce_challenge=example_challenge; Path=/; HttpOnly
   // Set-Cookie: okta_domain=example_domain; Path=/; HttpOnly
   // Set-Cookie: okta_client_id=example_client_id; Path=/; HttpOnly
   // Set-Cookie: okta_redirect_uri=example_redirect_uri; Path=/; HttpOnly
@@ -72,7 +72,7 @@ export const handler = middy()
   //   },
   //   "cookies": [
   //     "pkce_verifier",
-  //     "pkce_challange",
+  //     "pkce_challenge",
   //     "okta_domain",
   //     "okta_client_id",
   //     "okta_redirect_uri",

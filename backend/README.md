@@ -75,6 +75,25 @@ temp/                     # Temporary files
   } = flattenObject(stackOutputs)
   ```
 
+## Okta Claims to AWS Role Map.
+  AWS construct `OktaOidcFederation` creates an AWS Role based on claims that Okta `id_token` must have. Conditions are built into the `Role` and only when they match, the `Role` will be assigned to the temporary Web user. The assignment takes place during `awsCredentialsLambda` execution.
+
+  In the below example:
+  - The **StringEquals** condition asserts that the audience (aud) claim should match the Okta app client id, and that the subject (sub) claim matches a specific service account.
+  - The **StringLike** condition asserts that the group claim starts with "developers".
+
+  ```
+    {
+      StringEquals: {
+        'dev-123456789.okta.com:aud': '0ktaCli3nt!d',
+        'dev-123456789.okta.com:sub': 'u3yrgwu67',
+      },
+      StringLike: {
+        'dev-123456789.okta.com:group': 'developers*'
+      }
+    }
+  ```
+
 
 ## oktaCallbackLambda.
 

@@ -1,22 +1,14 @@
 import { CfnOutput, Duration, } from 'aws-cdk-lib';
 import { Construct } from "constructs"
-import path from 'path';
-import fs from 'node:fs'
-import { Effect, ManagedPolicy, OpenIdConnectProvider, PolicyStatement, Role, WebIdentityPrincipal } from 'aws-cdk-lib/aws-iam';
+import { Conditions, Effect, ManagedPolicy, OpenIdConnectProvider, PolicyStatement, Role, WebIdentityPrincipal } from 'aws-cdk-lib/aws-iam';
+
+import {oktaDomain, oktaClientId, awsIdpForOkta} from './../../../oktaProps.json'
 
 
 export class OktaOidcFederation extends Construct{
 
-  // public readonly oktaLoginLambda: NodejsFunction
-
   constructor(scope: Construct, id: string){
     super(scope, id)
-
-    const { 
-      oktaDomain, 
-      oktaClientId,
-      awsIdpForOkta,
-    } = JSON.parse(fs.readFileSync(path.join(__dirname, '..', '..', '..', './oktaProps.json'), 'utf-8'))
 
     // const oktaProvider = new OpenIdConnectProvider(this, 'OidcProvider', {
     //   url: `https://${oktaDomain}/custom`,
@@ -28,11 +20,13 @@ export class OktaOidcFederation extends Construct{
     const oktaProvider = OpenIdConnectProvider.fromOpenIdConnectProviderArn(this, 'OidcProvider', awsIdpForOkta)
       // Attention! clientIds can't be added via CDK in this case
       // Add your Okta clientId in IAM->Identity providers->your-idp.okta.com->Audiences manually
+    
+    const conditions: Conditions = {
+      StringEquals: { [`${oktaDomain}:aud`]: oktaClientId },
+    }
 
     const federatedRole = new Role(this, 'FederatedRole', {
-      assumedBy: new WebIdentityPrincipal(oktaProvider.openIdConnectProviderArn, {
-        StringEquals: { [`${oktaDomain}:aud`]: oktaClientId },
-      }),
+      assumedBy: new WebIdentityPrincipal(oktaProvider.openIdConnectProviderArn, conditions),
       maxSessionDuration: Duration.hours(1),
     })
 
