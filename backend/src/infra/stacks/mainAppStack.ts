@@ -1,15 +1,12 @@
-import { CfnOutput, Duration, RemovalPolicy, Stack, StackProps, } from 'aws-cdk-lib'
+import { CfnOutput, Duration, RemovalPolicy, Stack, } from 'aws-cdk-lib'
 import { AccessLevel, AllowedMethods, CachePolicy, Distribution, KeyGroup, OriginRequestPolicy, PriceClass, PublicKey, ResponseHeadersPolicy, ViewerProtocolPolicy,  } from 'aws-cdk-lib/aws-cloudfront';
 import { FunctionUrlOrigin, S3BucketOrigin, } from 'aws-cdk-lib/aws-cloudfront-origins';
 import { Bucket, BucketAccessControl, BucketEncryption, EventType, HttpMethods, ObjectOwnership } from 'aws-cdk-lib/aws-s3';
 import { BucketDeployment, Source } from 'aws-cdk-lib/aws-s3-deployment';
 import { Construct } from 'constructs';
+import path from 'node:path';
 
 import { LogBucket } from '../constructs/logBucket';
-
-import path from 'node:path';
-import fs from 'fs';
-
 import { OktaLoginLambda } from '../constructs/oktaLoginLambda';
 import { OktaCallbackLambda } from '../constructs/oktaCallbackLambda';
 import { OktaAuthorizeLambda } from '../constructs/oktaAuthorizeLambda';
@@ -20,10 +17,9 @@ import { CustomStackProps } from '../Launcher';
 import { AwsCredentialsLambda } from '../constructs/awsCredentialsLambda';
 import { LogoutLambda } from '../constructs/logoutLambda';
 
+import {publicKey} from './../../../cloudfrontKeys.json'
 
-const {publicKey} = JSON.parse(fs.readFileSync('./cloudfrontKeys.json', 'utf-8'))
-
-export class YourNameAppStack extends Stack {
+export class App3MainStack extends Stack {
 
   constructor(scope: Construct, id: string, props?: CustomStackProps) {
       super(scope, id, props)

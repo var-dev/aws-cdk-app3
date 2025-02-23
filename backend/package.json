@@ -5,7 +5,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "cdk": "cdk",
-    "deploy": "cdk deploy -O ./stackOutputs.json",
+    "deploy": "cdk deploy --require-approval never -O ./stackOutputs.json",
     "genCfKeys": "ts-node ./src/infra/utils/genRsaKeys.ts"
   },
   "keywords": [],

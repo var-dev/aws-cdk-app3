@@ -10,8 +10,8 @@
 - Using AWS Console set up AWS IDP for Okta. Details are in the following section.
 - Copy the IDP ARN and add it to `oktaProps.json`.
 - Generate AWS Cloudfront RSA keys. CF frontend uses signed cookie to authorize access. More in the `backend` folder. For now use the command `npm run genCfKeys` to complete this task.
-- In `stacks/mainAppStack.ts` change the stack class name. May want to use VS Code find/replace and search for `YourNameAppStack`. VS Code F2 hot-key will work for that even better.
-- Same, modify `YourNameAppStack` and constructIdPrefix value `qwe123` in  `Launcher.ts`. 
+- (Optional) In `stacks/mainAppStack.ts` change the stack class name. May want to use VS Code find/replace and search for `App3MainStack`. VS Code F2 hot-key will work for that even better.
+- Replace stack ID `App3Stack` and `constructIdPrefix` value `Qwerty` in `Launcher.ts`. 
 - Create a file in `frontend/dist`. I.e.: `mkdir touch ../frontend/dist && touch ../frontend/dist/1.txt`. This is necessary to avoid an error when building stack for the first time.
 - If you've never worked with AWS CDK you should probably start with `npm run cdk bootstrap`. Maybe with `-- --profile="your-aws-non-default-profile"`. Make sure your AWS account is configured and **cli** is functional.  
 - Do `npm run deploy`

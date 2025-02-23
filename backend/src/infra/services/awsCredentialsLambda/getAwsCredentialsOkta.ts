@@ -3,6 +3,7 @@ import { AssumeRoleWithWebIdentityCommand, AssumeRoleWithWebIdentityCommandOutpu
 export async function getAwsCredentialsOkta (
     oidcToken: string, 
     roleArn: string,
+    roleName = 'Role1',
     region = 'us-east-1'
   ): Promise<Credentials> {
   const client = new STSClient({ region })
@@ -10,7 +11,8 @@ export async function getAwsCredentialsOkta (
   const params: AssumeRoleWithWebIdentityRequest = {
     RoleArn: roleArn, // required
     WebIdentityToken: oidcToken, // required
-    RoleSessionName: "OktaFederatedSession", // required
+    RoleSessionName: roleName,  // required. An identifier for the assumed role session. Typically, you pass the name
+                                // or identifier that is associated with the user who is using your application.
     DurationSeconds: 3600, // 1 hour, adjust as needed (max 12 hours or 43200 seconds)
   }
 

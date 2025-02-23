@@ -93,7 +93,18 @@ temp/                     # Temporary files
       }
     }
   ```
+  #### From AWS `node_modules/@aws-sdk/client-sts/dist-types/models/models_0.d.ts` regarding the *aud* claim:
 
+  <p>Additional considerations apply to Amazon Cognito identity pools that assume <a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies-cross-account-resource-access.html">cross-account IAM roles</a>. The trust policies of these roles must accept the
+    <code>cognito-identity.amazonaws.com</code> service principal and must contain the
+    <code>cognito-identity.amazonaws.com:aud</code> condition key to restrict role
+  assumption to users from your intended identity pools. A policy that trusts Amazon Cognito
+  identity pools without this condition creates a risk that a user from an unintended
+  identity pool can assume the role. For more information, see <a href="https://docs.aws.amazon.com/cognito/latest/developerguide/iam-roles.html#trust-policies"> Trust policies for IAM roles in Basic (Classic) authentication </a> in the <i>Amazon Cognito Developer Guide</i>.</p>
+
+It's foreseeable that the `OktaOidcFederation` construct may produce multiple AWS Roles. In this case each role should be `CfnOutput` with a descriptive keyword as `key` and the **roleArn** in the `value` field. These roles are therefore saved to `stackOutputs.json` and may be consumed by other constructs. See `awsCredentialsLambda.ts` as an example.
+
+In the lambda handler `awsCredentialsLambda/index.ts` the Role selection logic is implemented inside `getWebIdRole()` function.
 
 ## oktaCallbackLambda.
 

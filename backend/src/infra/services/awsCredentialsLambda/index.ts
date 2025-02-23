@@ -45,7 +45,7 @@ const getHandler = async (event: LambdaFunctionURLEvent): Promise<LambdaFunction
     }
   
   const awsCredentialsPromise = 
-    getAwsCredentialsOkta(idToken, getWebIdRole(), appRegion)
+    getAwsCredentialsOkta(idToken, getWebIdRole(), 'TempUserRole1', appRegion)
     .then(
       (resolve=>{
         console.log(`\nTemp AWS Credentials:\n${JSON.stringify(resolve, undefined, 2)}`)
